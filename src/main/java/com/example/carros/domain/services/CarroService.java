@@ -1,11 +1,15 @@
-package com.example.carros.domain;
+package com.example.carros.domain.services;
 
+import com.example.carros.domain.dto.CarroDTO;
+import com.example.carros.domain.model.Carro;
+import com.example.carros.domain.repositories.CarroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /*
  * @project carros_api
@@ -17,16 +21,22 @@ public class CarroService {
     @Autowired
     private CarroRepository repository;
 
-    public Iterable<Carro> getCarros() {
-        return repository.findAll();
+    public List<CarroDTO> getCarros() {
+        List<Carro> carros = repository.findAll();
+        return carros.stream()
+                .map(CarroDTO::new)
+                .collect(Collectors.toList());
     }
 
-    public Optional<Carro> findById(Long id) {
-        return repository.findById(id);
+    public Optional<CarroDTO> findById(Long id) {
+        return repository.findById(id).map(CarroDTO::new);
     }
 
-    public List<Carro> findByTipo(String tipo) {
-        return repository.findByTipo(tipo);
+    public List<CarroDTO> findByTipo(String tipo) {
+        return repository.findByTipo(tipo)
+                .stream()
+                .map(CarroDTO::new)
+                .collect(Collectors.toList());
     }
 
     public Carro save(Carro carro) {

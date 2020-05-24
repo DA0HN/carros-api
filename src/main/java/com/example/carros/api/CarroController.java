@@ -1,7 +1,8 @@
 package com.example.carros.api;
 
-import com.example.carros.domain.Carro;
-import com.example.carros.domain.CarroService;
+import com.example.carros.domain.dto.CarroDTO;
+import com.example.carros.domain.model.Carro;
+import com.example.carros.domain.services.CarroService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,20 +30,20 @@ public class CarroController {
     private CarroService service;
 
     @GetMapping
-    public ResponseEntity<Iterable<Carro>> get() {
+    public ResponseEntity<List<CarroDTO>> get() {
         return new ResponseEntity<>(service.getCarros(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Carro> findById(@PathVariable Long id) {
-        Optional<Carro> optionalCarro = service.findById(id);
+    public ResponseEntity<CarroDTO> findById(@PathVariable Long id) {
+        Optional<CarroDTO> optionalCarro = service.findById(id);
         return optionalCarro.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/tipo/{tipo}")
-    public ResponseEntity<List<Carro>> findByTipo(@PathVariable String tipo) {
-        List<Carro> listaDeTipo = service.findByTipo(tipo);
+    public ResponseEntity<List<CarroDTO>> findByTipo(@PathVariable String tipo) {
+        List<CarroDTO> listaDeTipo = service.findByTipo(tipo);
         return listaDeTipo.isEmpty() ? ResponseEntity.noContent().build() :
                 ResponseEntity.ok(listaDeTipo);
     }
