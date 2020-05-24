@@ -2,8 +2,9 @@ package com.example.carros.api;
 
 import com.example.carros.domain.Carro;
 import com.example.carros.domain.CarroService;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.Optional;
 
 /*
  * @project carros_api
@@ -25,18 +29,22 @@ public class CarroController {
     private CarroService service;
 
     @GetMapping
-    public Iterable<Carro> get() {
-        return service.getCarros();
+    public ResponseEntity<Iterable<Carro>> get() {
+        return new ResponseEntity<>(service.getCarros(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public Carro findById(@PathVariable Long id) {
-        return service.findById(id);
+    public ResponseEntity<Carro> findById(@PathVariable Long id) {
+        Optional<Carro> optionalCarro = service.findById(id);
+        return optionalCarro.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/tipo/{tipo}")
-    public Iterable<Carro> findByTipo(@PathVariable String tipo) {
-        return service.findByTipo(tipo);
+    public ResponseEntity<List<Carro>> findByTipo(@PathVariable String tipo) {
+        List<Carro> listaDeTipo = service.findByTipo(tipo);
+        return listaDeTipo.isEmpty() ? ResponseEntity.noContent().build() :
+                ResponseEntity.ok(listaDeTipo);
     }
 
     @PostMapping

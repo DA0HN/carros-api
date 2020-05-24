@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.List;
 import java.util.Optional;
 
 /*
@@ -20,20 +21,17 @@ public class CarroService {
         return repository.findAll();
     }
 
-    public Carro findById(Long id) {
-        Optional<Carro> carro = repository.findById(id);
-        return carro.orElseThrow(() -> new RuntimeException("Carro não encontrado"));
+    public Optional<Carro> findById(Long id) {
+        return repository.findById(id);
     }
 
-    public Iterable<Carro> findByTipo(String tipo) {
-        Iterable<Carro> byTipo = repository.findByTipo(tipo);
-        return byTipo;
+    public List<Carro> findByTipo(String tipo) {
+        return repository.findByTipo(tipo);
     }
 
     public Carro save(Carro carro) {
-        Assert.isNull(carro, "Não foi possível salvar o registro");
-        Carro c = repository.save(carro);
-        return c;
+        Assert.notNull(carro, "Não foi possível salvar o registro");
+        return repository.save(carro);
     }
 
     public Carro update(Carro carro, Long id) {
@@ -48,8 +46,6 @@ public class CarroService {
     }
 
     public void delete(Long id) {
-        repository.findById(id).ifPresent(c -> {
-            repository.deleteById(id);
-        });
+        repository.findById(id).ifPresent(c -> repository.deleteById(id));
     }
 }
