@@ -24,27 +24,27 @@ public class CarroService {
     public List<CarroDTO> getCarros() {
         List<Carro> carros = repository.findAll();
         return carros.stream()
-                .map(CarroDTO::new)
+                .map(CarroDTO::create)
                 .collect(Collectors.toList());
     }
 
     public Optional<CarroDTO> findById(Long id) {
-        return repository.findById(id).map(CarroDTO::new);
+        return repository.findById(id).map(CarroDTO::create);
     }
 
     public List<CarroDTO> findByTipo(String tipo) {
         return repository.findByTipo(tipo)
                 .stream()
-                .map(CarroDTO::new)
+                .map(CarroDTO::create)
                 .collect(Collectors.toList());
     }
 
-    public Carro save(Carro carro) {
-        Assert.notNull(carro, "Não foi possível salvar o registro");
-        return repository.save(carro);
+    public CarroDTO save(Carro carro) {
+        Assert.isNull(carro.getId(), "Não foi possível salvar o registro");
+        return CarroDTO.create(repository.save(carro));
     }
 
-    public Carro update(Carro carro, Long id) {
+    public CarroDTO update(Carro carro, Long id) {
         Assert.notNull(id, "Não foi possível atualizar o registro");
         Optional<Carro> carroDb = repository.findById(id);
         carroDb.ifPresent(c -> {
@@ -52,10 +52,14 @@ public class CarroService {
             c.setTipo(carro.getTipo());
             repository.save(c);
         });
-        return carroDb.orElseThrow(() -> new RuntimeException("Não foi possível atualizar o registro"));
+        return carroDb.map(CarroDTO::create).orElse(null);
     }
 
-    public void delete(Long id) {
-        repository.findById(id).ifPresent(c -> repository.deleteById(id));
+    public boolean delete(Long id) {
+        if(repository.existsById(id)) {
+            repository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }

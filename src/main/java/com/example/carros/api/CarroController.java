@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,20 +51,33 @@ public class CarroController {
     }
 
     @PostMapping
-    public String save(@RequestBody Carro carro) {
-        service.save(carro);
-        return "Carro salvo com sucesso " + carro.getId();
+    public ResponseEntity<CarroDTO> save(@RequestBody Carro carro) {
+        try {
+            CarroDTO carroDTO = service.save(carro);
+            URI location = getUri(carroDTO.getId());
+            return ResponseEntity.created(location).build();
+        }
+        catch(Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @PutMapping("/{id}")
-    public String update(@RequestBody Carro carro, @PathVariable Long id) {
-        Carro c = service.update(carro, id);
-        return "Carro atualizado com sucesso " + carro.getId();
+    public ResponseEntity<CarroDTO> update(@RequestBody Carro carro, @PathVariable Long id) {
+        CarroDTO carroDTO = service.update(carro, id);
+        return carroDTO != null ? ResponseEntity.ok(carroDTO) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
-    public String delete(@PathVariable Long id) {
-        service.delete(id);
-        return "Carro deletado com sucesso";
+    public ResponseEntity delete(@PathVariable Long id) {
+        boolean ok = service.delete(id);
+        return ok ? ResponseEntity.ok().build() :
+                ResponseEntity.notFound().build();
+    }
+
+    private URI getUri(Long id) {
+        return ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(id).toUri();
     }
 }
